@@ -6,7 +6,9 @@
 function bubbleChart() {
 
   var width = 940;
+  //var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
   var height = 600;
+  var padding = 50;
   var tooltip = floatingTooltip('gates_tooltip', 240);
   var center = {
     x: width / 2,
@@ -32,7 +34,7 @@ function bubbleChart() {
    gita: width - 160
  };
 
-  var forceStrength = 0.03;
+  var forceStrength = 0.1;
 
   var svg = null;
   var bubbles = null;
@@ -44,9 +46,13 @@ function bubbleChart() {
 
   var simulation = d3.forceSimulation()
     .velocityDecay(0.2)
-    .force('x', d3.forceX().strength(forceStrength).x(center.x))
+    .force('x', d3.forceX().strength(forceStrength).x(function(d) {
+      console.log()
+      return (d.xScale)
+    }))
     .force('y', d3.forceY().strength(forceStrength).y(center.y))
     .force('charge', d3.forceManyBody().strength(charge))
+    .force('collide', d3.forceCollide().radius(function(d) { return d.radius + 0.5; }).iterations(2))
     .on('tick', ticked);
 
   simulation.stop();
@@ -54,7 +60,8 @@ function bubbleChart() {
 
   var fillColor = d3.scaleOrdinal()
     .domain(['low', 'medium', 'high'])
-    .range(['#d84b2a', '#beccae', '#7aa25c']);
+    .range(['rgb(50,90,120,0.25)', 'rgb(30,120,90,0.25)', 'rgb(10,210,90,0.25)']);
+
 
   function createNodes(rawData) {
 
@@ -74,8 +81,15 @@ function bubbleChart() {
 
     var radiusScale = d3.scalePow()
       .exponent(0.5)
-      .range([2, 85])
+      .range([2, height/20])
       .domain([0, maxAmount]);
+
+    const gitaMax = d3.max(addMax, d => d.gWeight)
+    const bibleMax = d3.max(addMax, d => d.bWeight)
+
+    const xScale = d3.scaleLinear()
+        .domain([(0-bibleMax), gitaMax])
+        .range([0+padding, width-padding])
 
     var myNodes = addMax.map(function(d) {
       return {
@@ -86,6 +100,7 @@ function bubbleChart() {
         gita: +d.gWeight,
         x: Math.random() * 900,
         y: Math.random() * 800,
+        xScale: xScale(+d.bWeight, +d.gWeight),
       };
     });
 
@@ -93,8 +108,6 @@ function bubbleChart() {
 
     return myNodes;
   };
-
-
 
   var chart = function chart(selector, rawData) {
     nodes = createNodes(rawData);
@@ -135,7 +148,9 @@ function bubbleChart() {
   }
 
   function groupBubbles() {
-    simulation.force('x', d3.forceX().strength(forceStrength).x(center.x));
+    simulation.force('x', d3.forceX().strength(forceStrength).x(function(d) {
+      return (d.xScale)
+    }));
     simulation.alpha(1).restart();
   }
 
@@ -166,16 +181,17 @@ function bubbleChart() {
     tooltip.hideTooltip();
   }
 
-  chart.toggleDisplay = function (displayName) {
-      if (displayName === 'year') {
-        splitBubbles();
-      } else {
-        groupBubbles();
-      }
-  };
+  // chart.toggleDisplay = function (displayName) {
+  //     if (displayName === 'year') {
+  //       splitBubbles();
+  //     } else {
+  //       groupBubbles();
+  //     }
+  // };
 
   return chart;
 }
+
 
 
 var myBubbleChart = bubbleChart();
@@ -184,8 +200,9 @@ function display(error, data) {
   if (error) {
     console.log(error);
   }
-
   myBubbleChart('#vis', data);
 }
+
+
 
 d3.csv('data/data.csv', display);
