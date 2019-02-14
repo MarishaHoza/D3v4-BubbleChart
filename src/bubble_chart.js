@@ -59,9 +59,28 @@ function bubbleChart() {
 
 
   var fillColor = d3.scaleOrdinal()
-    .domain(['low', 'medium', 'high'])
+    .domain(function(d) {
+      return [0, d.bible, d.total]
+    })
     .range(['rgb(50,90,120,0.25)', 'rgb(30,120,90,0.25)', 'rgb(10,210,90,0.25)']);
 
+
+
+
+  // const colorScale = d3
+  //   .scaleSequential()
+  //   .domain(function(d) {
+  //     return [0, d.bible, d.total]
+  //   })
+  //   .interpolator(d3.interpolateRdYlBu);
+
+  // var fillColor = d3.scaleOrdinal()
+  //   .domain(['low', 'medium', 'high'])
+  //   .range(['rgb(50,90,120,0.25)', 'rgb(30,120,90,0.25)', 'rgb(10,210,90,0.25)']);
+
+  // var gradient = defs.append("linearGradient")
+  //   .attr("id", "svgGradient")
+  //   .attr()
 
   function createNodes(rawData) {
 
@@ -120,14 +139,61 @@ function bubbleChart() {
     bubbles = svg.selectAll('.bubble')
       .data(nodes, function(d) { return d.id; })
 
+//////////////////
+
+    let ids = nodes.map(function(d) {return d.id})
+    console.log(ids)
+    console.log(nodes)
+
+    var defs = svg.append("defs");
+
+    let makeDefs = ids.map(function(d){
+      let gradient = defs.append(d)
+        .attr("id", d)
+        .attr("x1", "0%")
+        .attr("x2", "100%");
+      gradient.append("stop")
+        .attr('class', 'start')
+      return gradient;
+    })
+
+
+    var gradient = defs.append("linearGradient")
+      .attr("id", "svgGradient")
+      .attr("x1", "0%")
+      .attr("x2", "100%");
+
+    gradient.append("stop")
+      .attr('class', 'start')
+      .attr("offset", "50%")
+      .attr("stop-color", "red")
+      .attr("stop-opacity", 1);
+
+    gradient.append("stop")
+      .attr('class', 'end')
+      .attr("offset", "50%")
+      .attr("stop-color", "blue")
+      .attr("stop-opacity", 1);
+      /////////////
+
     var bubblesE = bubbles.enter().append('circle')
       .classed('bubble', true)
       .attr('r', 0)
-      .attr('fill', function (d) { return fillColor(d.radius); })
+      .attr('fill', "url(#svgGradient)")
       .attr('stroke', function (d) { return d3.rgb(fillColor(d.radius)).darker(); })
       .attr('stroke-width', 2)
+      .attr("id", function(d) {return d.id})
       .on('mouseover', showDetail)
       .on('mouseout', hideDetail);
+
+    // var bubblesE = bubbles.enter().append('circle')
+    //   .classed('bubble', true)
+    //   .attr('r', 0)
+    //   .attr('fill', function (d) { return fillColor(d.radius); })
+    //   .attr('stroke', function (d) { return d3.rgb(fillColor(d.radius)).darker(); })
+    //   .attr('stroke-width', 2)
+    //   .on('mouseover', showDetail)
+    //   .on('mouseout', hideDetail);
 
     bubbles = bubbles.merge(bubblesE);
 
@@ -136,6 +202,8 @@ function bubbleChart() {
       .attr('r', function(d) { return d.radius; });
 
     simulation.nodes(nodes);
+
+    console.log(bubbles)
 
     groupBubbles();
   };
