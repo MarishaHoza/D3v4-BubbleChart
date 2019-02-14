@@ -8,7 +8,7 @@ function bubbleChart() {
   var width = 940;
   //var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
   var height = 600;
-  var padding = 50;
+  var padding = 100;
   var tooltip = floatingTooltip('gates_tooltip', 240);
   var center = {
     x: width / 2,
@@ -25,11 +25,11 @@ function bubbleChart() {
    gita: width - 160
  };
 
-  var forceStrength = 0.025;
-
   var svg = null;
   var bubbles = null;
   var nodes = [];
+
+  var forceStrength = 0.025;
 
   function charge(d) {
     return -Math.pow(d.radius, 2.0) * forceStrength;
@@ -42,7 +42,7 @@ function bubbleChart() {
     }))
     .force('y', d3.forceY().strength(forceStrength).y(center.y))
     .force('charge', d3.forceManyBody().strength(charge))
-    .force('collide', d3.forceCollide().radius(function(d) { return d.radius + 0.5; }).iterations(2))
+    .force('collide', d3.forceCollide().radius(function(d) { return d.radius + 2; }).iterations(2))
     .on('tick', ticked);
 
   simulation.stop();
@@ -66,7 +66,7 @@ function bubbleChart() {
 
     var radiusScale = d3.scalePow()
       .exponent(0.5)
-      .range([2, height/20])
+      .range([5, height/15])
       .domain([0, maxAmount]);
 
     const gitaMax = d3.max(addMax, d => +d.gWeight)
