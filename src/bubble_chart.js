@@ -15,15 +15,6 @@ function bubbleChart() {
     y: height / 2
   }
 
-  // const gitaExtent = d3.extent(rawData, d => +d.gWeight)
-  // const bibleExtent = d3.extent(rawData, d => +d.bWeight)
-  //
-  // const xScale = d3.scaleLinear()
-  //   .domain([(0-bibleExtent[1]), gitaExtent[1]])
-  //   .range([0, width])
-  //
-  // console.log(gitaExtent)
-
   var bookCenters = {
     bible: { x: width / 3, y: height / 2 },
     gita: { x: 2 * width / 3, y: height / 2 }
@@ -34,7 +25,7 @@ function bubbleChart() {
    gita: width - 160
  };
 
-  var forceStrength = 0.1;
+  var forceStrength = 0.025;
 
   var svg = null;
   var bubbles = null;
@@ -47,7 +38,6 @@ function bubbleChart() {
   var simulation = d3.forceSimulation()
     .velocityDecay(0.2)
     .force('x', d3.forceX().strength(forceStrength).x(function(d) {
-      console.log()
       return (d.xScale)
     }))
     .force('y', d3.forceY().strength(forceStrength).y(center.y))
@@ -57,30 +47,6 @@ function bubbleChart() {
 
   simulation.stop();
 
-
-  var fillColor = d3.scaleOrdinal()
-    .domain(function(d) {
-      return [0, d.bible, d.total]
-    })
-    .range(['rgb(50,90,120,0.25)', 'rgb(30,120,90,0.25)', 'rgb(10,210,90,0.25)']);
-
-
-
-
-  // const colorScale = d3
-  //   .scaleSequential()
-  //   .domain(function(d) {
-  //     return [0, d.bible, d.total]
-  //   })
-  //   .interpolator(d3.interpolateRdYlBu);
-
-  // var fillColor = d3.scaleOrdinal()
-  //   .domain(['low', 'medium', 'high'])
-  //   .range(['rgb(50,90,120,0.25)', 'rgb(30,120,90,0.25)', 'rgb(10,210,90,0.25)']);
-
-  // var gradient = defs.append("linearGradient")
-  //   .attr("id", "svgGradient")
-  //   .attr()
 
   function createNodes(rawData) {
 
@@ -103,8 +69,8 @@ function bubbleChart() {
       .range([2, height/20])
       .domain([0, maxAmount]);
 
-    const gitaMax = d3.max(addMax, d => d.gWeight)
-    const bibleMax = d3.max(addMax, d => d.bWeight)
+    const gitaMax = d3.max(addMax, d => +d.gWeight)
+    const bibleMax = d3.max(addMax, d => +d.bWeight)
 
     const xScale = d3.scaleLinear()
         .domain([(0-bibleMax), gitaMax])
@@ -117,11 +83,24 @@ function bubbleChart() {
         radius: radiusScale(d.total),
         bible: +d.bWeight,
         gita: +d.gWeight,
-        x: Math.random() * 900,
-        y: Math.random() * 800,
-        xScale: xScale(+d.bWeight, +d.gWeight),
+        x: xScale((0-(+d.bWeight)+(+d.gWeight))),
+        y: 0,
+        xScale: xScale((0-(+d.bWeight)+(+d.gWeight))),
       };
     });
+
+    // var myNodes = addMax.map(function(d) {
+    //   return {
+    //     id: d.word,
+    //     total: d.total,
+    //     radius: radiusScale(d.total),
+    //     bible: +d.bWeight,
+    //     gita: +d.gWeight,
+    //     x: Math.random() * 900,
+    //     y: Math.random() * 800,
+    //     xScale: xScale((0-(+d.bWeight)+(+d.gWeight))),
+    //   };
+    // });
 
     myNodes.sort(function (a, b) { return b.bible - a.bible});
 
@@ -141,59 +120,40 @@ function bubbleChart() {
 
 //////////////////
 
-    let ids = nodes.map(function(d) {return d.id})
-    console.log(ids)
+    let ids = nodes.map(function(d) {return d.id+"SVG"})
+    let percentages = nodes.map(function(d) {return (d.bible/d.total)})
     console.log(nodes)
+    let count = 0;
 
     var defs = svg.append("defs");
 
     let makeDefs = ids.map(function(d){
-      let gradient = defs.append(d)
+      let gradient = defs.append("linearGradient")
         .attr("id", d)
         .attr("x1", "0%")
         .attr("x2", "100%");
       gradient.append("stop")
         .attr('class', 'start')
-      return gradient;
+        .attr("offset", percentages[count])
+        .attr("stop-color", "#2a71a3")
+        .attr("stop-opacity", 1);
+      gradient.append("stop")
+        .attr('class', 'end')
+        .attr("offset", percentages[count])
+        .attr("stop-color", "#da577e")
+        .attr("stop-opacity", 1);
+      count ++;
     })
-
-
-    var gradient = defs.append("linearGradient")
-      .attr("id", "svgGradient")
-      .attr("x1", "0%")
-      .attr("x2", "100%");
-
-    gradient.append("stop")
-      .attr('class', 'start')
-      .attr("offset", "50%")
-      .attr("stop-color", "red")
-      .attr("stop-opacity", 1);
-
-    gradient.append("stop")
-      .attr('class', 'end')
-      .attr("offset", "50%")
-      .attr("stop-color", "blue")
-      .attr("stop-opacity", 1);
-      /////////////
 
     var bubblesE = bubbles.enter().append('circle')
       .classed('bubble', true)
       .attr('r', 0)
-      .attr('fill', "url(#svgGradient)")
-      .attr('stroke', function (d) { return d3.rgb(fillColor(d.radius)).darker(); })
+      .attr('fill', function(d) {return "url(#" + d.id + "SVG)" })
+      .attr('stroke', "black")
       .attr('stroke-width', 2)
       .attr("id", function(d) {return d.id})
       .on('mouseover', showDetail)
       .on('mouseout', hideDetail);
-
-    // var bubblesE = bubbles.enter().append('circle')
-    //   .classed('bubble', true)
-    //   .attr('r', 0)
-    //   .attr('fill', function (d) { return fillColor(d.radius); })
-    //   .attr('stroke', function (d) { return d3.rgb(fillColor(d.radius)).darker(); })
-    //   .attr('stroke-width', 2)
-    //   .on('mouseover', showDetail)
-    //   .on('mouseout', hideDetail);
 
     bubbles = bubbles.merge(bubblesE);
 
@@ -244,7 +204,7 @@ function bubbleChart() {
 
   function hideDetail(d) {
     d3.select(this)
-      .attr('stroke', d3.rgb(fillColor(d.radius)).darker());
+      .attr('stroke', "black");
 
     tooltip.hideTooltip();
   }
