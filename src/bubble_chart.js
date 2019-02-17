@@ -27,6 +27,8 @@ function bubbleChart() {
 
   var svg = null;
   var bubbles = null;
+  var texts = null;
+  var ratios = null;
   var nodes = [];
 
   var forceStrength = 0.025;
@@ -84,23 +86,10 @@ function bubbleChart() {
         bible: +d.bWeight,
         gita: +d.gWeight,
         x: xScale((0-(+d.bWeight)+(+d.gWeight))),
-        y: 0,
+        y: Math.random() * 800,
         xScale: xScale((0-(+d.bWeight)+(+d.gWeight))),
       };
     });
-
-    // var myNodes = addMax.map(function(d) {
-    //   return {
-    //     id: d.word,
-    //     total: d.total,
-    //     radius: radiusScale(d.total),
-    //     bible: +d.bWeight,
-    //     gita: +d.gWeight,
-    //     x: Math.random() * 900,
-    //     y: Math.random() * 800,
-    //     xScale: xScale((0-(+d.bWeight)+(+d.gWeight))),
-    //   };
-    // });
 
     myNodes.sort(function (a, b) { return b.bible - a.bible});
 
@@ -118,7 +107,6 @@ function bubbleChart() {
     bubbles = svg.selectAll('.bubble')
       .data(nodes, function(d) { return d.id; })
 
-//////////////////
 
     let ids = nodes.map(function(d) {return d.id+"SVG"})
     let percentages = nodes.map(function(d) {return (d.bible/d.total)})
@@ -135,13 +123,13 @@ function bubbleChart() {
       gradient.append("stop")
         .attr('class', 'start')
         .attr("offset", percentages[count])
-        .attr("stop-color", "#2a71a3")
-        .attr("stop-opacity", 1);
+        .attr("stop-color", "rgb(19, 91, 186, 0.75)")
+        .attr("stop-opacity", 0.75);
       gradient.append("stop")
         .attr('class', 'end')
         .attr("offset", percentages[count])
-        .attr("stop-color", "#da577e")
-        .attr("stop-opacity", 1);
+        .attr("stop-color", "rgb(63, 144, 83, 0.75)")
+        .attr("stop-opacity", 0.75);
       count ++;
     })
 
@@ -149,7 +137,7 @@ function bubbleChart() {
       .classed('bubble', true)
       .attr('r', 0)
       .attr('fill', function(d) {return "url(#" + d.id + "SVG)" })
-      .attr('stroke', "black")
+      .attr('stroke', "rgb(135, 142, 145)")
       .attr('stroke-width', 2)
       .attr("id", function(d) {return d.id})
       .on('mouseover', showDetail)
@@ -157,9 +145,42 @@ function bubbleChart() {
 
     bubbles = bubbles.merge(bubblesE);
 
+
+    texts = svg.selectAll(null)
+      .data(nodes, function(d) { return d.id; })
+      .enter()
+      .append('text')
+      .text(function(d) {
+        function cap(string) {
+          return (string.charAt(0).toUpperCase() + string.slice(1))
+        }
+        return cap(d.id)
+      })
+      .attr('color', 'white')
+      .attr('font-size', function(d) {
+        return d.radius * 0.65
+      })
+      .attr('text-anchor', 'middle');
+
+    ratios = svg.selectAll(null)
+      .data(nodes, function(d) { return d.id; })
+      .enter()
+      .append('text')
+      .text(function(d) {
+        return d.bible + ' - ' + d.gita
+      })
+      .attr('color', 'white')
+      .attr('font-size', function(d) {
+        return d.radius * 0.4
+      })
+      .attr('text-anchor', 'middle')
+
+
+
     bubbles.transition()
       .duration(2000)
       .attr('r', function(d) { return d.radius; });
+
 
     simulation.nodes(nodes);
 
@@ -173,6 +194,12 @@ function bubbleChart() {
     bubbles
       .attr('cx', function(d) { return d.x; })
       .attr('cy', function(d) { return d.y; });
+    texts
+      .attr('x', function(d) { return (d.x)})
+      .attr('y', function(d) { return (d.y)});
+    ratios
+    .attr('x', function(d) { return (d.x)})
+    .attr('y', function(d) { return (d.y + (d.radius/2))});
   }
 
   function groupBubbles() {
@@ -187,24 +214,24 @@ function bubbleChart() {
   //   simulation.alpha(1).restart();
   // }
 
-  function showDetail(d) {
-    d3.select(this).attr('stroke', 'black');
+  function details(d) {
+    d3.select(this).attr('stroke', 'rgb(135, 142, 145)');
+    var content = '<span class="name">' + d.id + '</span> <br/> <span class="value">'
+                  + d.bible + ' - ' +  d.gita + '</span>'
+  }
 
-    var content = '<span class="name"> Title: </span><span class="value">' +
-                  d.id +
-                  '</span><br/>' +
-                  '<span class="name"> Bible Count: </span><span class="value">' +
-                  d.bible +
-                  '<span class="name"> Gita Count: </span><span class="value">' +
-                  d.gita +
-                  '</span>';
+  function showDetail(d) {
+    d3.select(this).attr('stroke', 'rgb(135, 142, 145)');
+
+    var content = '<span class="name">' + d.id + '</span> <br/> <span class="value">'
+                  + d.bible + ' - ' +  d.gita + '</span>';
 
     tooltip.showTooltip(content, d3.event);
   };
 
   function hideDetail(d) {
     d3.select(this)
-      .attr('stroke', "black");
+      .attr('stroke', "rgb(135, 142, 145)");
 
     tooltip.hideTooltip();
   }
