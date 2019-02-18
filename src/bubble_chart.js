@@ -15,16 +15,6 @@ function bubbleChart() {
     y: height / 2
   }
 
-  var bookCenters = {
-    bible: { x: width / 3, y: height / 2 },
-    gita: { x: 2 * width / 3, y: height / 2 }
-  };
-
-  var bookTitleX = {
-   bible: 160,
-   gita: width - 160
- };
-
   var svg = null;
   var bubbles = null;
   var texts = null;
@@ -50,13 +40,9 @@ function bubbleChart() {
   simulation.stop();
 
 
-  function createNodes(rawData) {
+  function createNodes(shownData) {
 
-    let myData = rawData.filter(function(d) {
-      return d.start === "TRUE"
-    })
-
-    let addMax = myData.map(function(d) {
+    let addMax = shownData.map(function(d) {
       var theData = Object.assign({}, d);
       theData.total = ( Number(d.bWeight) + Number(d.gWeight) );
       return theData;
@@ -93,11 +79,65 @@ function bubbleChart() {
 
     myNodes.sort(function (a, b) { return b.bible - a.bible});
 
-    return myNodes;
+    return myNodes
   };
 
   var chart = function chart(selector, rawData) {
-    nodes = createNodes(rawData);
+
+    let shownData = rawData.filter(function(d) {
+      return d.start === "TRUE"
+    });
+
+    ////////////////////
+
+    console.log(rawData.some(item => item.word === 'evil'));
+
+    console.log(rawData)
+
+    function checkIfData (rawData, key, value) {
+      for (var i=0; i < rawData.length; i++){
+        if(rawData[i][key] === value) {
+          console.log(i)
+          shownData.push(rawData[i])
+          console.log(shownData)
+          nodes = createNodes(shownData);
+          console.log(nodes)
+          groupBubbles()
+          return i;
+        }
+      }
+      console.log(false)
+      return false;
+    }
+
+    console.log(checkIfData(rawData, "word", "evil"));
+    console.log(rawData[186])
+
+    shownData.push(rawData[186])
+
+
+    function getInput() {
+      event.preventDefault();
+      var x = document.getElementById("word-form");
+      var text = "";
+      var i;
+      for (i = 0; i < x.length ;i++) {
+        text += x.elements[i].value;
+      }
+      input = text
+      console.log(text);
+    }
+
+    let input = ""
+
+    document.getElementById("newword").onclick = function() {
+      getInput()
+      checkIfData(rawData, "word", input)
+    };
+
+    ////////////////////
+
+    nodes = createNodes(shownData);
 
     svg = d3.select(selector)
       .append('svg')
@@ -110,7 +150,6 @@ function bubbleChart() {
 
     let ids = nodes.map(function(d) {return d.id+"SVG"})
     let percentages = nodes.map(function(d) {return (d.bible/d.total)})
-    console.log(nodes)
     let count = 0;
 
     var defs = svg.append("defs");
@@ -145,7 +184,6 @@ function bubbleChart() {
 
     bubbles = bubbles.merge(bubblesE);
 
-
     texts = svg.selectAll(null)
       .data(nodes, function(d) { return d.id; })
       .enter()
@@ -157,9 +195,7 @@ function bubbleChart() {
         return cap(d.id)
       })
       .attr('color', 'white')
-      .attr('font-size', function(d) {
-        return d.radius * 0.65
-      })
+      .attr('font-size', 0)
       .attr('text-anchor', 'middle');
 
     ratios = svg.selectAll(null)
@@ -170,22 +206,23 @@ function bubbleChart() {
         return d.bible + ' - ' + d.gita
       })
       .attr('color', 'white')
-      .attr('font-size', function(d) {
-        return d.radius * 0.4
-      })
+      .attr('font-size', 0)
       .attr('text-anchor', 'middle')
 
-
-
     bubbles.transition()
-      .duration(2000)
+      .duration(1500)
       .attr('r', function(d) { return d.radius; });
+
+    texts.transition()
+      .duration(1500)
+      .attr('font-size', function(d) { return d.radius * 0.65 });
+
+    ratios.transition()
+      .duration(1500)
+      .attr('font-size', function(d) { return d.radius * 0.4 });
 
 
     simulation.nodes(nodes);
-
-    console.log(bubbles)
-
     groupBubbles();
   };
 
@@ -198,8 +235,8 @@ function bubbleChart() {
       .attr('x', function(d) { return (d.x)})
       .attr('y', function(d) { return (d.y)});
     ratios
-    .attr('x', function(d) { return (d.x)})
-    .attr('y', function(d) { return (d.y + (d.radius/2))});
+      .attr('x', function(d) { return (d.x)})
+      .attr('y', function(d) { return (d.y + (d.radius/2))});
   }
 
   function groupBubbles() {
@@ -208,11 +245,6 @@ function bubbleChart() {
     }));
     simulation.alpha(1).restart();
   }
-
-  // function splitBubbles() {
-  //   simulation.force('x', d3.forceX().strength(forceStrength).x(nodeYearPos));
-  //   simulation.alpha(1).restart();
-  // }
 
   function details(d) {
     d3.select(this).attr('stroke', 'rgb(135, 142, 145)');
@@ -236,18 +268,8 @@ function bubbleChart() {
     tooltip.hideTooltip();
   }
 
-  // chart.toggleDisplay = function (displayName) {
-  //     if (displayName === 'year') {
-  //       splitBubbles();
-  //     } else {
-  //       groupBubbles();
-  //     }
-  // };
-
   return chart;
 }
-
-
 
 var myBubbleChart = bubbleChart();
 
@@ -257,6 +279,28 @@ function display(error, data) {
   }
   myBubbleChart('#vis', data);
 }
+
+function setupButtons() {
+  d3.select('#toolbar')
+    .selectAll('.button')
+    .on('click', function () {
+      // Remove active class from all buttons
+      d3.selectAll('.button').classed('active', false);
+      // Find the button just clicked
+      var button = d3.select(this);
+
+      // Set it as the active button
+      button.classed('active', true);
+
+      // Get the id of the button
+      var buttonId = button.attr('id');
+
+      // Toggle the bubble chart based on
+      // the currently clicked button.
+      myBubbleChart.toggleDisplay(buttonId);
+    });
+}
+
 
 
 

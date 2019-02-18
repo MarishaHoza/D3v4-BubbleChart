@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Bubble chart with d3v4</title>
+  <title>Bubble Chart With D3v4</title>
   <meta name="description" content="Using D3v4 to create a Bubble chart. bubble_chart_v4 by vlandham">
   <meta name="author" content="Marisha Hoza">
 
@@ -14,11 +14,66 @@
 
 <body>
   <div class="container">
-    <h1>Title</h1>
-    <div id="toolbar">
+    <h1 class="title">Word Usage in the New Testament and Bhagavad Gita</h1>
+    <h3 class="center">Bible translation: New International Version (NIV)</h3>
+    <h3 class="center">Bhagavad Gita translation by Shri Purohit Swami</h3>
+
+    <div class="explanation">
+      <div class="explain" id="bibleExpl">
+        &larr; Words favored by the Bible (New Testament)
+      </div>
+      <div class="explain" id="centerExpl">
+        Number of mentions per 10,000 written words in the <span style="color:rgb(19, 91, 186, 0.75)"> Bible </span> and <span style="color:rgb(63, 144, 83, 0.75)"> Bhagavad Gita </span>
+      </div>
+      <div class="explain" id="gitaExpl">
+        Words favored by the Bhagavad Gita &rarr;
+      </div>
     </div>
 
-    <div id="vis"></div
+    <div id="toolbar">
+      <form id="word-form" onsubmit="return false">
+        <p>
+          Disclaimer: this search bar is not working yet... :(
+        </p>
+        <input type="text" id="uinput" name="search" placeholder="Add word" />
+        <button type="submit" id="newword">+</button>
+      </form>
+    </div>
+
+    <div id="vis">
+    </div>
+
+    <footer>
+      <h2 class="title"> Assets: </h2>
+      <ul>
+        <li>
+          Word frequency counter by browserling
+        </li>
+        <li>
+          Bhagavad Gita free translation by Shri Purohit Swami
+        </li>
+        <li>
+          Free NIV transition of the New Testament
+        </li>
+        <li>
+          D3 Data-Driven Documents library
+        </li>
+        <li>
+          D3 bubble chart tutorials and inspiration by:
+            <ul>
+              <li>
+                Jim Vallandingham
+              </li>
+              <li>
+                Mike Bostock, Shan Carter, and Matthew Ericson
+              </li>
+              <li>
+                Stack Overflow
+              </li>
+            </ul>
+        </li>
+      </ul>
+    </footer>
   </div>
 
   <script src="//d3js.org/d3.v4.min.js"></script>
