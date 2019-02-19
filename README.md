@@ -8,17 +8,21 @@ This repository contains a word analysis of the New Testament (Bible) and the Bh
 D3 needs to be run from a web server due to how it imports data files.
 
 To run this visualization locally from the Terminal, navigate to the directory you checked it out to.
+
 `cd ~/code/path/to/D3v4-BubbleChart`
 
 Then start a webserver locally. If you are on a Linux or Mac, you should be able to use python's built in webserver:
+
 `python -m SimpleHTTPServer 3000`
 
 Alternatively, I have switched to using node's http-server for local hosting.
 
 Ensure you have the node package installed:
+
 `npm install -g http-server`
 
 And then run it in the root directory of the repository.
+
 `http-server`
 
 ## Disclaimer
