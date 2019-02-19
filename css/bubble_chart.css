@@ -18,29 +18,41 @@ body {
   text-align: center;
 }
 
+.fixedWidth {
+  width: 940px;
+  height: auto;
+}
+
 .explanation {
   width: 940px;
   height: auto;
-  margin-top: 100px;
-  margin-bottom: -120px;
+  margin-top: 60px;
+  margin-bottom: -20px;
+  padding: 0;
 }
 
 .explain {
   display: inline-block;
-  width: 180px;
-  margin-left: 55px;
-  font-size: 15px;
+  width: 32%;
+  margin: 0.25%;
   text-align: center;
 }
 
 #bibleExpl {
+  width: 20%;
+  padding-right: 5%;
+  padding-left: 7%;
 }
 
 #centerExpl {
-  width: 300px;
+  width: 32%;
+  font-size: 15px;
 }
 
 #gitaExpl {
+  width: 20%;
+  padding-left: 5%;
+  padding-right: 7%;
 }
 
 li {
@@ -53,7 +65,7 @@ a, a:visited, a:active {
 }
 
 .container {
-  max-width: 940px;
+  width: 940px;
   margin: auto;
   padding: 20px;
   border: 2px solid darkgrey;
@@ -80,7 +92,7 @@ a, a:visited, a:active {
   width: 940px;
   height: 600px;
   clear: both;
-  margin-bottom: 10px;
+  margin-bottom: -30px;
 }
 
 #toolbar {

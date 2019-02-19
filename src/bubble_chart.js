@@ -7,8 +7,8 @@ function bubbleChart() {
 
   var width = 940;
   //var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-  var height = 600;
-  var padding = 100;
+  var height = 400;
+  var padding = 150;
   var tooltip = floatingTooltip('gates_tooltip', 240);
   var center = {
     x: width / 2,
@@ -21,10 +21,10 @@ function bubbleChart() {
   var ratios = null;
   var nodes = [];
 
-  var forceStrength = 0.025;
+  var forceStrength = 0.05;
 
   function charge(d) {
-    return -Math.pow(d.radius, 2.0) * forceStrength;
+    return -Math.pow(d.radius, 2.0) * 0.025;
   }
 
   var simulation = d3.forceSimulation()
@@ -54,14 +54,14 @@ function bubbleChart() {
 
     var radiusScale = d3.scalePow()
       .exponent(0.5)
-      .range([5, height/15])
+      .range([5, height/10])
       .domain([0, maxAmount]);
 
     const gitaMax = d3.max(addMax, d => +d.gWeight)
     const bibleMax = d3.max(addMax, d => +d.bWeight)
 
     const xScale = d3.scaleLinear()
-        .domain([(0-bibleMax), gitaMax])
+        .domain([1, 0])
         .range([0+padding, width-padding])
 
     var myNodes = addMax.map(function(d) {
@@ -71,14 +71,14 @@ function bubbleChart() {
         radius: radiusScale(d.total),
         bible: +d.bWeight,
         gita: +d.gWeight,
-        x: xScale((0-(+d.bWeight)+(+d.gWeight))),
+        x: xScale(+d.bWeight/((+d.bWeight)+(+d.gWeight))),
         y: Math.random() * 800,
-        xScale: xScale((0-(+d.bWeight)+(+d.gWeight))),
+        xScale: xScale(+d.bWeight/((+d.bWeight)+(+d.gWeight))),
       };
     });
 
-    myNodes.sort(function (a, b) { return b.bible - a.bible});
-
+    //myNodes.sort(function (a, b) { return b.bible - a.bible});
+    console.log(myNodes)
     return myNodes
   };
 
@@ -90,31 +90,18 @@ function bubbleChart() {
 
     ////////////////////
 
-    console.log(rawData.some(item => item.word === 'evil'));
-
-    console.log(rawData)
-
     function checkIfData (rawData, key, value) {
       for (var i=0; i < rawData.length; i++){
         if(rawData[i][key] === value) {
-          console.log(i)
-          shownData.push(rawData[i])
-          console.log(shownData)
-          nodes = createNodes(shownData);
-          console.log(nodes)
-          groupBubbles()
-          return i;
+          rawData[i]['start'] = 'TRUE';
+          return true;
         }
       }
       console.log(false)
       return false;
     }
 
-    console.log(checkIfData(rawData, "word", "evil"));
-    console.log(rawData[186])
-
     shownData.push(rawData[186])
-
 
     function getInput() {
       event.preventDefault();
@@ -122,17 +109,21 @@ function bubbleChart() {
       var text = "";
       var i;
       for (i = 0; i < x.length ;i++) {
-        text += x.elements[i].value;
+        text += x.elements[i].value.toLowerCase();
       }
       input = text
-      console.log(text);
     }
 
     let input = ""
 
     document.getElementById("newword").onclick = function() {
       getInput()
-      checkIfData(rawData, "word", input)
+      if (checkIfData(rawData, "word", input) === true) {
+        d3.selectAll('svg ').remove()
+        chart(selector, rawData)
+        console.log(shownData)
+      }
+
     };
 
     ////////////////////
