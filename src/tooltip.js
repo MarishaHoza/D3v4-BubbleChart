@@ -1,4 +1,6 @@
-
+// Tooltip to allow for extra text to appear on mouseover.
+// This functionality is currently not very useful.
+// I might implement a better use for this later.
 
 function floatingTooltip(tooltipId, width) {
   var tt = d3.select('body')
