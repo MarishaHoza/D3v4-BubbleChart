@@ -2,7 +2,7 @@
 Creating a bubble chart based on word usage in the New Testament vs the Bhagavad Gita
 
 ## Description
-This repository contains a word analysis of the New Testament (Bible) and the Bhagavad gita to comare language used and practice D3 version 4 force layouts.
+This repository contains a word analysis of the New Testament (Bible) and the Bhagavad gita to compare language used and practice D3 version 4 force layouts.
 
 ## Running
 D3 needs to be run from a web server due to how it imports data files.
@@ -19,7 +19,7 @@ Then start a webserver locally. If you are on a Linux or Mac, you should be able
 python -m SimpleHTTPServer 3000
 ```
 
-Alternatively, I have switched to using node's http-server for local hosting.
+Alternatively, you can use node's http-server for local hosting.
 
 Ensure you have the node package installed:
 
