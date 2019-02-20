@@ -105,6 +105,26 @@ a, a:visited, a:active {
   margin-top: 30px;
 }
 
+a {
+  text-decoration: none;
+}
+
+#returnHome{
+  color: black;
+  text-align: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  height: auto;
+  width: 100px;
+  padding: 5px;
+  font-size: 1.25em;
+  margin-left: 30px;
+}
+
+#returnHome:hover {
+  background-color: lightgrey;
+}
+
 .year {
   font-size: 21px;
   fill: #aaa;
